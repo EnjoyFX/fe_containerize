@@ -573,7 +573,7 @@ spec:
 {{- end }}`,
   },
   deploy: {
-    label: 'deploy.sh',
+    label: 'build-and-deploy.sh',
     code: `#!/bin/bash
 set -euo pipefail
 cd "$(dirname "$0")/.."
