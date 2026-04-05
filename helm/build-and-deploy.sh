@@ -20,10 +20,11 @@ DB_PASSWORD="$(awk -F= '/^POSTGRES_PASSWORD=/{print substr($0, index($0,$2)); ex
 DB_PASSWORD="${DB_PASSWORD:-CHANGE_ME_USE_STRONG_PASSWORD}"
 REDEPLOY_TS="$(date +%s)"
 helm upgrade --install fe-containerize ./fe-containerize \
+  -n fe-containerize --create-namespace \
   --set db.password="$DB_PASSWORD" \
-  --set frontend.podAnnotations.redeployTimestamp="$REDEPLOY_TS" \
-  --set backend.podAnnotations.redeployTimestamp="$REDEPLOY_TS" \
-  --set microfrontend.podAnnotations.redeployTimestamp="$REDEPLOY_TS" \
+  --set-string frontend.podAnnotations.redeployTimestamp="$REDEPLOY_TS" \
+  --set-string backend.podAnnotations.redeployTimestamp="$REDEPLOY_TS" \
+  --set-string microfrontend.podAnnotations.redeployTimestamp="$REDEPLOY_TS" \
   --wait
 
 echo "==> Done!"
