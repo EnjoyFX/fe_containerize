@@ -1,0 +1,6 @@
+apiVersion: v2
+name: fe-containerize
+description: Demo multi-service app (Frontend + Backend + Micro-frontend + PostgreSQL)
+version: 1.0.0
+appVersion: "1.0.0"
+type: application

@@ -1,0 +1,354 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: #f5f5f5;
+  color: #333;
+}
+
+.container {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+header {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+header h1 {
+  font-size: 1.5rem;
+}
+
+.badge {
+  font-size: 0.75rem;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-weight: 500;
+}
+.badge.ok { background: #d4edda; color: #155724; }
+.badge.err { background: #f8d7da; color: #721c24; }
+
+.layout {
+  display: grid;
+  grid-template-columns: 1fr 300px;
+  gap: 24px;
+}
+
+.main-panel, .side-panel {
+  background: #fff;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+h2 {
+  font-size: 1.1rem;
+  margin-bottom: 16px;
+}
+
+.add-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+.add-form input {
+  flex: 1 1 120px;
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 0.9rem;
+}
+.add-form button {
+  padding: 8px 16px;
+  background: #4f46e5;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+.add-form button:hover { background: #4338ca; }
+
+.item-list {
+  list-style: none;
+}
+.item-list li {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 12px 0;
+  border-bottom: 1px solid #eee;
+}
+.item-list li:last-child { border-bottom: none; }
+.item-list li p { color: #666; font-size: 0.85rem; margin-top: 2px; }
+.item-list li small { color: #999; font-size: 0.75rem; }
+.item-list .empty { color: #999; text-align: center; padding: 32px 0; }
+
+.del {
+  background: none;
+  border: none;
+  color: #e53e3e;
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: 8px 12px;
+  min-width: 44px;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.widget-error {
+  color: #e53e3e;
+  font-size: 0.85rem;
+  padding: 12px;
+  background: #fff5f5;
+  border-radius: 6px;
+}
+
+/* Architecture panel */
+.arch-panel {
+  background: #fff;
+  border-radius: 8px;
+  padding: 24px;
+  margin-top: 24px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.arch-tabs {
+  display: flex;
+  gap: 0;
+  margin-bottom: 20px;
+  border-bottom: 2px solid #e2e8f0;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.arch-tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.arch-tab {
+  padding: 8px 16px;
+  border: none;
+  background: none;
+  white-space: nowrap;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: #94a3b8;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  transition: color 0.2s, border-color 0.2s;
+}
+.arch-tab:hover {
+  color: #64748b;
+}
+.arch-tab.active {
+  color: #4f46e5;
+  border-bottom-color: #4f46e5;
+}
+
+.arch-subtabs {
+  display: flex;
+  gap: 0;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.arch-subtab {
+  padding: 6px 14px;
+  border: 1px solid #e2e8f0;
+  background: #f8fafc;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.arch-subtab:first-child {
+  border-radius: 6px 0 0 6px;
+}
+.arch-subtab:last-child {
+  border-radius: 0 6px 6px 0;
+}
+.arch-subtab:not(:first-child) {
+  margin-left: -1px;
+}
+.arch-subtab:hover {
+  background: #eef2ff;
+  color: #4f46e5;
+}
+.arch-subtab.active {
+  background: #4f46e5;
+  color: #fff;
+  border-color: #4f46e5;
+  z-index: 1;
+  position: relative;
+}
+
+.arch-code {
+  background: #1e293b;
+  color: #e2e8f0;
+  padding: 20px;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  line-height: 1.6;
+  overflow-x: auto;
+  font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+}
+
+.arch-diagram {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 8px 0;
+}
+
+.arch-column {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+}
+
+.arch-vert-arrow {
+  font-size: 1.3rem;
+  color: #94a3b8;
+  line-height: 1;
+  padding: 4px 0;
+}
+
+.arch-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 16px 20px;
+  border: 2px solid #e2e8f0;
+  border-radius: 12px;
+  background: #f8fafc;
+  min-width: 140px;
+  transition: border-color 0.2s;
+}
+.arch-box:hover {
+  border-color: #4f46e5;
+}
+
+.arch-icon {
+  color: #4f46e5;
+  margin-bottom: 4px;
+}
+.db-box .arch-icon { color: #0891b2; }
+.mfe-box .arch-icon { color: #7c3aed; }
+.backend-box .arch-icon { color: #059669; }
+
+.arch-label {
+  font-weight: 700;
+  font-size: 0.9rem;
+  text-align: center;
+}
+
+.arch-tech {
+  font-size: 0.7rem;
+  color: #64748b;
+  text-align: center;
+}
+
+.arch-port {
+  font-size: 0.7rem;
+  color: #94a3b8;
+  font-family: monospace;
+}
+
+.arch-badge {
+  font-size: 0.6rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 2px 8px;
+  border-radius: 8px;
+  margin-top: 4px;
+}
+.arch-public {
+  background: #dcfce7;
+  color: #166534;
+}
+.arch-internal {
+  background: #f1f5f9;
+  color: #64748b;
+}
+
+.arch-arrow {
+  font-size: 1.5rem;
+  color: #94a3b8;
+  font-weight: 300;
+  flex-shrink: 0;
+}
+
+/* Mobile */
+@media (max-width: 700px) {
+  .container {
+    padding: 16px;
+  }
+
+  .layout {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .main-panel, .side-panel {
+    padding: 16px;
+  }
+
+  .add-form {
+    flex-direction: column;
+  }
+  .add-form input {
+    flex: 1 1 auto;
+  }
+  .add-form button {
+    width: 100%;
+  }
+
+  .arch-panel {
+    padding: 16px;
+  }
+
+  .arch-diagram {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .arch-arrow {
+    transform: rotate(90deg);
+  }
+
+  .arch-box {
+    min-width: 0;
+    width: 100%;
+    max-width: 200px;
+    padding: 12px 16px;
+  }
+
+  .arch-code {
+    padding: 14px;
+    font-size: 0.72rem;
+  }
+
+  .arch-tab {
+    padding: 8px 12px;
+    font-size: 0.78rem;
+  }
+}

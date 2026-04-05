@@ -1,0 +1,56 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: microfrontend
+  namespace: {{ include "app.namespace" . }}
+  labels:
+    app: microfrontend
+    {{- include "app.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.microfrontend.replicas }}
+  selector:
+    matchLabels:
+      app: microfrontend
+  template:
+    metadata:
+      labels:
+        app: microfrontend
+      {{- with .Values.microfrontend.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    spec:
+      containers:
+        - name: microfrontend
+          image: {{ .Values.images.microfrontend }}
+          imagePullPolicy: {{ .Values.images.pullPolicy }}
+          ports:
+            - containerPort: {{ .Values.microfrontend.port }}
+          readinessProbe:
+            httpGet:
+              path: /widget.iife.js
+              port: {{ .Values.microfrontend.port }}
+            initialDelaySeconds: 3
+            periodSeconds: 10
+          resources:
+            requests:
+              memory: 32Mi
+              cpu: 50m
+            limits:
+              memory: 64Mi
+              cpu: 200m
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: microfrontend
+  namespace: {{ include "app.namespace" . }}
+  labels:
+    app: microfrontend
+    {{- include "app.labels" . | nindent 4 }}
+spec:
+  selector:
+    app: microfrontend
+  ports:
+    - port: 80
+      targetPort: {{ .Values.microfrontend.port }}

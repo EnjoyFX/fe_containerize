@@ -1,0 +1,36 @@
+namespace: fe-containerize
+
+# Container images — override after building & pushing
+images:
+  frontend: docker.io/library/fe_containerize-frontend:latest
+  backend: docker.io/library/fe_containerize-backend:latest
+  microfrontend: docker.io/library/fe_containerize-microfrontend:latest
+  pullPolicy: IfNotPresent
+
+db:
+  image: postgres:16-alpine
+  name: appdb
+  user: appuser
+  password: CHANGE_ME_USE_STRONG_PASSWORD
+  storage: 1Gi
+
+backend:
+  replicas: 1
+  port: 8000
+  allowedOrigins: "https://demo.triggers.online"
+  podAnnotations: {}
+
+frontend:
+  replicas: 1
+  port: 80
+  podAnnotations: {}
+
+microfrontend:
+  replicas: 1
+  port: 80
+  podAnnotations: {}
+
+ingress:
+  enabled: true
+  host: demo.triggers.online
+  # className: traefik  # k3s default
