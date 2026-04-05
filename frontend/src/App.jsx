@@ -187,7 +187,6 @@ const HELM_TABS = {
     ├── values.yaml               # Default configuration
     └── templates/
         ├── _helpers.tpl          # Template helpers
-        ├── namespace.yaml        # Namespace
         ├── secrets.yaml          # DB credentials Secret
         ├── db.yaml               # ConfigMap + PVC + Deployment + Service
         ├── backend.yaml          # Deployment + Service
@@ -224,14 +223,17 @@ backend:
   replicas: 1
   port: 8000
   allowedOrigins: "https://demo.triggers.online"
+  podAnnotations: {}
 
 frontend:
   replicas: 1
   port: 80
+  podAnnotations: {}
 
 microfrontend:
   replicas: 1
   port: 80
+  podAnnotations: {}
 
 ingress:
   enabled: true
@@ -247,13 +249,6 @@ ingress:
 app.kubernetes.io/managed-by: helm
 app.kubernetes.io/part-of: fe-containerize
 {{- end -}}`,
-  },
-  namespace: {
-    label: 'namespace.yaml',
-    code: `apiVersion: v1
-kind: Namespace
-metadata:
-  name: {{ include "app.namespace" . }}`,
   },
   secrets: {
     label: 'secrets.yaml',
@@ -596,8 +591,13 @@ echo "==> Deploying with Helm..."
 cd helm
 DB_PASSWORD="$(awk -F= '/^POSTGRES_PASSWORD=/{print substr($0,index($0,$2)); exit}' ../.env 2>/dev/null || true)"
 DB_PASSWORD="\${DB_PASSWORD:-CHANGE_ME_USE_STRONG_PASSWORD}"
+REDEPLOY_TS="$(date +%s)"
 helm upgrade --install fe-containerize ./fe-containerize \\
+  -n fe-containerize --create-namespace \\
   --set db.password="$DB_PASSWORD" \\
+  --set-string frontend.podAnnotations.redeployTimestamp="$REDEPLOY_TS" \\
+  --set-string backend.podAnnotations.redeployTimestamp="$REDEPLOY_TS" \\
+  --set-string microfrontend.podAnnotations.redeployTimestamp="$REDEPLOY_TS" \\
   --wait
 
 echo "==> Done!"
