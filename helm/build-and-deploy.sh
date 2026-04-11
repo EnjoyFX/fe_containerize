@@ -1,6 +1,10 @@
 #!/bin/bash
 set -euo pipefail
 
+# Generate project files JSON for UI
+echo "==> Generating project files..."
+python3 scripts/generate-project-files.py
+
 # Build images using docker compose
 echo "==> Building images..."
 cd "$(dirname "$0")/.."

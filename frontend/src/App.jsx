@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react'
 import RemoteWidget from './RemoteWidget'
 
-const DOCKER_TABS = {
+/* Project files are loaded dynamically from /project-files.json */
+
+const PLACEHOLDER_DOCKER_TABS = {
   structure: {
     label: 'Structure',
     code: `fe_containerize/
@@ -177,7 +179,7 @@ INSERT INTO items (name, description) VALUES
   },
 }
 
-const HELM_TABS = {
+const PLACEHOLDER_HELM_TABS = {
   structure: {
     label: 'Structure',
     code: `helm/
@@ -613,6 +615,7 @@ function App() {
   const [archSection, setArchSection] = useState('diagram')
   const [dockerTab, setDockerTab] = useState('structure')
   const [helmTab, setHelmTab] = useState('structure')
+  const [projectFiles, setProjectFiles] = useState(null)
   const [token, setToken] = useState(sessionStorage.getItem('token') || '')
   const [loginUser, setLoginUser] = useState('')
   const [loginPass, setLoginPass] = useState('')
@@ -674,6 +677,10 @@ function App() {
   }
 
   useEffect(() => {
+    fetch('/project-files.json')
+      .then((r) => r.ok ? r.json() : null)
+      .then(setProjectFiles)
+      .catch(() => setProjectFiles(null))
     fetchItems()
     fetchHealth()
   }, [])
@@ -811,7 +818,7 @@ function App() {
 
         {archSection === 'docker' && (
           <div className="arch-subtabs">
-            {Object.entries(DOCKER_TABS).map(([key, tab]) => (
+            {Object.entries(projectFiles?.docker || PLACEHOLDER_DOCKER_TABS).map(([key, tab]) => (
               <button
                 key={key}
                 className={`arch-subtab ${dockerTab === key ? 'active' : ''}`}
@@ -825,7 +832,7 @@ function App() {
 
         {archSection === 'helm' && (
           <div className="arch-subtabs">
-            {Object.entries(HELM_TABS).map(([key, tab]) => (
+            {Object.entries(projectFiles?.helm || PLACEHOLDER_HELM_TABS).map(([key, tab]) => (
               <button
                 key={key}
                 className={`arch-subtab ${helmTab === key ? 'active' : ''}`}
@@ -888,11 +895,11 @@ function App() {
         )}
 
         {archSection === 'docker' && (
-          <pre className="arch-code">{DOCKER_TABS[dockerTab].code}</pre>
+          <pre className="arch-code">{(projectFiles?.docker || PLACEHOLDER_DOCKER_TABS)[dockerTab]?.code}</pre>
         )}
 
         {archSection === 'helm' && (
-          <pre className="arch-code">{HELM_TABS[helmTab].code}</pre>
+          <pre className="arch-code">{(projectFiles?.helm || PLACEHOLDER_HELM_TABS)[helmTab]?.code}</pre>
         )}
       </section>
     </div>

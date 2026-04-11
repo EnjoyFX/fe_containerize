@@ -1,6 +1,8 @@
-ʼnode_modules/
+node_modules/
 dist/
 __pycache__/
 *.pyc
 .venv/
 .env
+frontend/public/project-files.json
+microfrontend/src/buildInfo.js
