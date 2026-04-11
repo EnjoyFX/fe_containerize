@@ -18,7 +18,9 @@ backend:
   replicas: 1
   port: 8000
   allowedOrigins: "https://demo.triggers.online"
-  apiKey: ""
+  authUser: admin
+  authPassword: ""
+  jwtSecret: ""
   podAnnotations: {}
 
 frontend:

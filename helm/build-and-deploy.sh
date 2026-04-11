@@ -18,12 +18,16 @@ echo "==> Deploying with Helm..."
 cd helm
 DB_PASSWORD="$(awk -F= '/^POSTGRES_PASSWORD=/{print substr($0, index($0,$2)); exit}' ../.env 2>/dev/null || true)"
 DB_PASSWORD="${DB_PASSWORD:-CHANGE_ME_USE_STRONG_PASSWORD}"
-API_KEY="$(awk -F= '/^API_KEY=/{print substr($0, index($0,$2)); exit}' ../.env 2>/dev/null || true)"
+AUTH_USER="$(awk -F= '/^AUTH_USER=/{print substr($0, index($0,$2)); exit}' ../.env 2>/dev/null || true)"
+AUTH_PASSWORD="$(awk -F= '/^AUTH_PASSWORD=/{print substr($0, index($0,$2)); exit}' ../.env 2>/dev/null || true)"
+JWT_SECRET="$(awk -F= '/^JWT_SECRET=/{print substr($0, index($0,$2)); exit}' ../.env 2>/dev/null || true)"
 REDEPLOY_TS="$(date +%s)"
 helm upgrade --install fe-containerize ./fe-containerize \
   -n fe-containerize --create-namespace \
   --set db.password="$DB_PASSWORD" \
-  --set backend.apiKey="$API_KEY" \
+  --set backend.authUser="$AUTH_USER" \
+  --set backend.authPassword="$AUTH_PASSWORD" \
+  --set backend.jwtSecret="$JWT_SECRET" \
   --set-string frontend.podAnnotations.redeployTimestamp="$REDEPLOY_TS" \
   --set-string backend.podAnnotations.redeployTimestamp="$REDEPLOY_TS" \
   --set-string microfrontend.podAnnotations.redeployTimestamp="$REDEPLOY_TS" \

@@ -613,6 +613,43 @@ function App() {
   const [archSection, setArchSection] = useState('diagram')
   const [dockerTab, setDockerTab] = useState('structure')
   const [helmTab, setHelmTab] = useState('structure')
+  const [token, setToken] = useState(sessionStorage.getItem('token') || '')
+  const [loginUser, setLoginUser] = useState('')
+  const [loginPass, setLoginPass] = useState('')
+  const [loginError, setLoginError] = useState('')
+
+  const authHeaders = (extra = {}) => ({
+    ...extra,
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+  })
+
+  const handleLogin = async (e) => {
+    e.preventDefault()
+    setLoginError('')
+    try {
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username: loginUser, password: loginPass }),
+      })
+      if (res.ok) {
+        const data = await res.json()
+        setToken(data.token)
+        sessionStorage.setItem('token', data.token)
+        setLoginPass('')
+      } else {
+        const err = await res.json()
+        setLoginError(err.message || 'Login failed')
+      }
+    } catch {
+      setLoginError('Connection error')
+    }
+  }
+
+  const handleLogout = () => {
+    setToken('')
+    sessionStorage.removeItem('token')
+  }
 
   const fetchItems = async () => {
     try {
@@ -643,9 +680,13 @@ function App() {
     try {
       const res = await fetch('/api/items', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: authHeaders({ 'Content-Type': 'application/json' }),
         body: JSON.stringify({ name, description }),
       })
+      if (res.status === 401) {
+        handleLogout()
+        return
+      }
       if (res.ok) {
         setName('')
         setDescription('')
@@ -658,7 +699,14 @@ function App() {
 
   const deleteItem = async (id) => {
     try {
-      await fetch(`/api/items/${id}`, { method: 'DELETE' })
+      const res = await fetch(`/api/items/${id}`, {
+        method: 'DELETE',
+        headers: authHeaders(),
+      })
+      if (res.status === 401) {
+        handleLogout()
+        return
+      }
       fetchItems()
     } catch (e) {
       console.error('Failed to delete item:', e)
@@ -669,30 +717,56 @@ function App() {
     <div className="container">
       <header>
         <h1>Demo App</h1>
-        {health && (
-          <span className={`badge ${health.status === 'ok' ? 'ok' : 'err'}`}>
-            API: {health.status} | DB: {health.database}
-          </span>
-        )}
+        <div className="header-right">
+          {health && (
+            <span className={`badge ${health.status === 'ok' ? 'ok' : 'err'}`}>
+              API: {health.status} | DB: {health.database}
+            </span>
+          )}
+          {token ? (
+            <button className="auth-btn" onClick={handleLogout}>Logout</button>
+          ) : null}
+        </div>
       </header>
 
       <div className="layout">
         <section className="main-panel">
           <h2>Items</h2>
-          <form onSubmit={addItem} className="add-form">
-            <input
-              placeholder="Name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              required
-            />
-            <input
-              placeholder="Description"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-            />
-            <button type="submit">Add</button>
-          </form>
+          {!token ? (
+            <form onSubmit={handleLogin} className="login-form">
+              <input
+                placeholder="Username"
+                value={loginUser}
+                onChange={(e) => setLoginUser(e.target.value)}
+                required
+              />
+              <input
+                placeholder="Password"
+                type="password"
+                value={loginPass}
+                onChange={(e) => setLoginPass(e.target.value)}
+                required
+              />
+              <button type="submit">Login</button>
+              {loginError && <span className="login-error">{loginError}</span>}
+            </form>
+          ) : null}
+          {token && (
+            <form onSubmit={addItem} className="add-form">
+              <input
+                placeholder="Name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                required
+              />
+              <input
+                placeholder="Description"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+              />
+              <button type="submit">Add</button>
+            </form>
+          )}
           <ul className="item-list">
             {items.map((item) => (
               <li key={item.id}>
@@ -701,9 +775,11 @@ function App() {
                   {item.description && <p>{item.description}</p>}
                   <small>{new Date(item.created_at).toLocaleString()}</small>
                 </div>
-                <button className="del" onClick={() => deleteItem(item.id)}>
-                  &times;
-                </button>
+                {token && (
+                  <button className="del" onClick={() => deleteItem(item.id)}>
+                    &times;
+                  </button>
+                )}
               </li>
             ))}
             {items.length === 0 && <li className="empty">No items yet</li>}

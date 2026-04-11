@@ -24,12 +24,6 @@ spec:
         - name: frontend
           image: {{ .Values.images.frontend }}
           imagePullPolicy: {{ .Values.images.pullPolicy }}
-          env:
-            - name: API_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: db-credentials
-                  key: API_KEY
           ports:
             - containerPort: {{ .Values.frontend.port }}
           readinessProbe:

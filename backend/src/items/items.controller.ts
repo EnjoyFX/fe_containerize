@@ -13,7 +13,7 @@ import {
 } from '@nestjs/common';
 import { ItemsService } from './items.service';
 import { CreateItemDto } from './create-item.dto';
-import { ApiKeyGuard } from '../api-key.guard';
+import { AuthGuard } from '../auth.guard';
 
 @Controller()
 export class ItemsController {
@@ -45,7 +45,7 @@ export class ItemsController {
   }
 
   @Post('items')
-  @UseGuards(ApiKeyGuard)
+  @UseGuards(AuthGuard)
   @HttpCode(201)
   async create(@Body() dto: CreateItemDto) {
     const item = await this.itemsService.create(dto);
@@ -58,7 +58,7 @@ export class ItemsController {
   }
 
   @Delete('items/:id')
-  @UseGuards(ApiKeyGuard)
+  @UseGuards(AuthGuard)
   @HttpCode(204)
   async remove(@Param('id', ParseIntPipe) id: number) {
     const deleted = await this.itemsService.remove(id);
