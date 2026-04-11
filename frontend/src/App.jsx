@@ -799,7 +799,7 @@ function App() {
 
         <aside className="side-panel">
           <h2>Remote Widget</h2>
-          <RemoteWidget src="/mfe/widget.iife.js" />
+          <RemoteWidget src={`/mfe/widget.iife.js?v=${Date.now()}`} />
         </aside>
       </div>
 
