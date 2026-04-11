@@ -7,11 +7,13 @@ import {
   Param,
   ParseIntPipe,
   HttpCode,
+  UseGuards,
   NotFoundException,
   ServiceUnavailableException,
 } from '@nestjs/common';
 import { ItemsService } from './items.service';
 import { CreateItemDto } from './create-item.dto';
+import { ApiKeyGuard } from '../api-key.guard';
 
 @Controller()
 export class ItemsController {
@@ -43,6 +45,7 @@ export class ItemsController {
   }
 
   @Post('items')
+  @UseGuards(ApiKeyGuard)
   @HttpCode(201)
   async create(@Body() dto: CreateItemDto) {
     const item = await this.itemsService.create(dto);
@@ -55,6 +58,7 @@ export class ItemsController {
   }
 
   @Delete('items/:id')
+  @UseGuards(ApiKeyGuard)
   @HttpCode(204)
   async remove(@Param('id', ParseIntPipe) id: number) {
     const deleted = await this.itemsService.remove(id);

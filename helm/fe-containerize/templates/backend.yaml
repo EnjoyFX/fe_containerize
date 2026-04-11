@@ -55,6 +55,11 @@ spec:
                   key: POSTGRES_DB
             - name: ALLOWED_ORIGINS
               value: {{ .Values.backend.allowedOrigins | quote }}
+            - name: API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: db-credentials
+                  key: API_KEY
           readinessProbe:
             httpGet:
               path: /api/health/ready

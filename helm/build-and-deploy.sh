@@ -18,10 +18,12 @@ echo "==> Deploying with Helm..."
 cd helm
 DB_PASSWORD="$(awk -F= '/^POSTGRES_PASSWORD=/{print substr($0, index($0,$2)); exit}' ../.env 2>/dev/null || true)"
 DB_PASSWORD="${DB_PASSWORD:-CHANGE_ME_USE_STRONG_PASSWORD}"
+API_KEY="$(awk -F= '/^API_KEY=/{print substr($0, index($0,$2)); exit}' ../.env 2>/dev/null || true)"
 REDEPLOY_TS="$(date +%s)"
 helm upgrade --install fe-containerize ./fe-containerize \
   -n fe-containerize --create-namespace \
   --set db.password="$DB_PASSWORD" \
+  --set backend.apiKey="$API_KEY" \
   --set-string frontend.podAnnotations.redeployTimestamp="$REDEPLOY_TS" \
   --set-string backend.podAnnotations.redeployTimestamp="$REDEPLOY_TS" \
   --set-string microfrontend.podAnnotations.redeployTimestamp="$REDEPLOY_TS" \

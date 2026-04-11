@@ -25,6 +25,7 @@ services:
       DB_PASSWORD: ${POSTGRES_PASSWORD:-apppass}
       DB_NAME: ${POSTGRES_DB:-appdb}
       ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-https://demo.triggers.online}
+      API_KEY: ${API_KEY:-}
     depends_on:
       db:
         condition: service_healthy
@@ -36,6 +37,8 @@ services:
   frontend:
     build: ./frontend
     restart: unless-stopped
+    environment:
+      API_KEY: ${API_KEY:-}
     ports:
       - "${FRONTEND_PORT:-3000}:80"
     depends_on:
