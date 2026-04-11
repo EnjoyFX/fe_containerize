@@ -60,7 +60,11 @@ export default function Widget() {
       </div>
       <div style={styles.statRow}>
         <span style={styles.label}>Version</span>
-        <span style={styles.value}>1.0.0</span>
+        <span style={styles.value}>{__APP_VERSION__}</span>
+      </div>
+      <div style={styles.statRow}>
+        <span style={styles.label}>Built</span>
+        <span style={styles.value}>{new Date(__BUILD_TIME__).toLocaleString()}</span>
       </div>
       <div style={{ textAlign: 'center' }}>
         <span style={styles.tag}>micro-frontend</span>
