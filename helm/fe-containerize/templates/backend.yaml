@@ -76,6 +76,13 @@ spec:
               port: {{ .Values.backend.port }}
             initialDelaySeconds: 5
             periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /api/health
+              port: {{ .Values.backend.port }}
+            initialDelaySeconds: 15
+            periodSeconds: 20
+            failureThreshold: 3
           resources:
             requests:
               memory: 128Mi

@@ -1,9 +1,12 @@
-import { Controller, Post, Body, UnauthorizedException } from '@nestjs/common';
+import { Controller, Post, Body, UnauthorizedException, UseGuards } from '@nestjs/common';
+import { ThrottlerGuard, Throttle } from '@nestjs/throttler';
 import * as jwt from 'jsonwebtoken';
 
 @Controller()
 export class AuthController {
   @Post('auth/login')
+  @UseGuards(ThrottlerGuard)
+  @Throttle({ default: { limit: 5, ttl: 60000 } })
   login(@Body() body: { username: string; password: string }) {
     const expectedUser = process.env.AUTH_USER || 'admin';
     const expectedPass = process.env.AUTH_PASSWORD;

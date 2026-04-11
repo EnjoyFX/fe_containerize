@@ -661,7 +661,10 @@ function App() {
         handleLogout()
         return
       }
-      if (res.ok) setItems(await res.json())
+      if (res.ok) {
+        const data = await res.json()
+        if (Array.isArray(data)) setItems(data)
+      }
     } catch (e) {
       console.error('Failed to fetch items:', e)
     }

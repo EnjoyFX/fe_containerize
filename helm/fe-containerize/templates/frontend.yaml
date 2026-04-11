@@ -32,6 +32,13 @@ spec:
               port: {{ .Values.frontend.port }}
             initialDelaySeconds: 3
             periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /
+              port: {{ .Values.frontend.port }}
+            initialDelaySeconds: 10
+            periodSeconds: 20
+            failureThreshold: 3
           resources:
             requests:
               memory: 32Mi
@@ -65,7 +72,7 @@ metadata:
     app: frontend
     {{- include "app.labels" . | nindent 4 }}
   annotations:
-    traefik.ingress.kubernetes.io/router.entrypoints: web
+    traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
 spec:
   {{- if .Values.ingress.className }}
   ingressClassName: {{ .Values.ingress.className }}

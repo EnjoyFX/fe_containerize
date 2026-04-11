@@ -17,7 +17,7 @@ for svc in frontend backend microfrontend; do
   docker save "fe_containerize-$svc:latest" | sudo k3s ctr images import -
 done
 
-# Deploy with Helm
+# Deploy with Helm (secrets passed via temp file to avoid exposure in process list)
 echo "==> Deploying with Helm..."
 cd helm
 DB_PASSWORD="$(awk -F= '/^POSTGRES_PASSWORD=/{print substr($0, index($0,$2)); exit}' ../.env 2>/dev/null || true)"
@@ -25,13 +25,23 @@ DB_PASSWORD="${DB_PASSWORD:-CHANGE_ME_USE_STRONG_PASSWORD}"
 AUTH_USER="$(awk -F= '/^AUTH_USER=/{print substr($0, index($0,$2)); exit}' ../.env 2>/dev/null || true)"
 AUTH_PASSWORD="$(awk -F= '/^AUTH_PASSWORD=/{print substr($0, index($0,$2)); exit}' ../.env 2>/dev/null || true)"
 JWT_SECRET="$(awk -F= '/^JWT_SECRET=/{print substr($0, index($0,$2)); exit}' ../.env 2>/dev/null || true)"
+
+SECRETS_FILE="$(mktemp)"
+trap 'rm -f "$SECRETS_FILE"' EXIT
+cat > "$SECRETS_FILE" <<EOF
+db:
+  password: "${DB_PASSWORD}"
+backend:
+  authUser: "${AUTH_USER}"
+  authPassword: "${AUTH_PASSWORD}"
+  jwtSecret: "${JWT_SECRET}"
+EOF
+chmod 600 "$SECRETS_FILE"
+
 REDEPLOY_TS="$(date +%s)"
 helm upgrade --install fe-containerize ./fe-containerize \
   -n fe-containerize --create-namespace \
-  --set db.password="$DB_PASSWORD" \
-  --set backend.authUser="$AUTH_USER" \
-  --set backend.authPassword="$AUTH_PASSWORD" \
-  --set backend.jwtSecret="$JWT_SECRET" \
+  -f "$SECRETS_FILE" \
   --set-string frontend.podAnnotations.redeployTimestamp="$REDEPLOY_TS" \
   --set-string backend.podAnnotations.redeployTimestamp="$REDEPLOY_TS" \
   --set-string microfrontend.podAnnotations.redeployTimestamp="$REDEPLOY_TS" \
