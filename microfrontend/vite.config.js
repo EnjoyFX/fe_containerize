@@ -1,15 +1,25 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
-import { readFileSync } from 'fs'
+import { readFileSync, writeFileSync } from 'fs'
 
 const pkg = JSON.parse(readFileSync('./package.json', 'utf-8'))
 
+function buildInfoPlugin() {
+  return {
+    name: 'build-info',
+    buildStart() {
+      writeFileSync(
+        'src/buildInfo.js',
+        `export const VERSION = '${pkg.version}';\nexport const BUILD_TIME = '${new Date().toISOString()}';\n`,
+      )
+    },
+  }
+}
+
 export default defineConfig({
-  plugins: [react()],
+  plugins: [react(), buildInfoPlugin()],
   define: {
     'process.env.NODE_ENV': JSON.stringify('production'),
-    __APP_VERSION__: JSON.stringify(pkg.version),
-    __BUILD_TIME__: JSON.stringify(new Date().toISOString()),
   },
   build: {
     lib: {

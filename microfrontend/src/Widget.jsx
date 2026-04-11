@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { VERSION, BUILD_TIME } from './buildInfo'
 
 const styles = {
   widget: {
@@ -60,11 +61,11 @@ export default function Widget() {
       </div>
       <div style={styles.statRow}>
         <span style={styles.label}>Version</span>
-        <span style={styles.value}>{__APP_VERSION__}</span>
+        <span style={styles.value}>{VERSION}</span>
       </div>
       <div style={styles.statRow}>
         <span style={styles.label}>Built</span>
-        <span style={styles.value}>{new Date(__BUILD_TIME__).toLocaleString()}</span>
+        <span style={styles.value}>{new Date(BUILD_TIME).toLocaleString()}</span>
       </div>
       <div style={{ textAlign: 'center' }}>
         <span style={styles.tag}>micro-frontend</span>
