@@ -206,6 +206,83 @@ helm uninstall fe-containerize
 kubectl delete namespace fe-containerize
 ```
 
+## Зупинка, перемикання, відновлення
+
+### Тимчасова зупинка (поди зупиняються, конфігурація і дані зберігаються)
+
+```bash
+kubectl scale deploy frontend backend microfrontend -n fe-containerize --replicas=0
+```
+
+### Відновлення
+
+```bash
+kubectl scale deploy frontend backend microfrontend -n fe-containerize --replicas=1
+```
+
+### Повне видалення
+
+```bash
+# Видалити деплой (PVC з базою залишиться)
+helm uninstall fe-containerize -n fe-containerize
+
+# Видалити разом з даними БД
+kubectl delete pvc db-data -n fe-containerize
+kubectl delete ns fe-containerize
+```
+
+### Запуск іншого додатку на тому ж домені
+
+Cloudflare вже направляє `demo.triggers.online` → RPi. Достатньо зупинити старий додаток і задеплоїти новий з Ingress на той самий host.
+
+```bash
+# 1. Зупинити старий
+helm uninstall fe-containerize -n fe-containerize
+
+# 2. Задеплоїти новий додаток
+kubectl create ns my-new-app
+kubectl apply -n my-new-app -f my-app-manifests/
+
+# 3. Ingress нового додатку — вказати той самий домен
+cat <<'EOF' | kubectl apply -f -
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: my-new-app
+  namespace: my-new-app
+  annotations:
+    traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
+spec:
+  rules:
+    - host: demo.triggers.online
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: my-new-app
+                port:
+                  number: 80
+EOF
+```
+
+### Швидке перемикання між додатками
+
+Тримати обидва додатки в k3s, перемикати масштабуванням:
+
+```bash
+# Переключити на новий
+kubectl scale deploy frontend backend microfrontend -n fe-containerize --replicas=0
+kubectl scale deploy my-new-app -n my-new-app --replicas=1
+
+# Повернути старий
+kubectl scale deploy my-new-app -n my-new-app --replicas=0
+kubectl scale deploy frontend backend microfrontend -n fe-containerize --replicas=1
+```
+
+Traefik направляє трафік тільки на поди, які мають живі endpoints. Обидва namespace можуть мати Ingress з однаковим `host:` — роутинг йде туди, де є готові поди.
+
 ## Cloudflare Tunnel
 
 Cloudflare Tunnel працює на рівні хоста, як і раніше. Traefik в k3s слухає порти 80/443. Tunnel направляє трафік на `localhost:80`, Traefik роутить за Ingress host rule на frontend Service.

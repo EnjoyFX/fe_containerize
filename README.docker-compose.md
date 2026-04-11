@@ -98,11 +98,39 @@ curl http://localhost:3080/api/items
 curl -I http://localhost:3080/mfe/widget.iife.js
 ```
 
-Зупинка:
+### Зупинка і відновлення
 
 ```bash
+# Тимчасова зупинка (контейнери і дані зберігаються)
+docker compose stop
+
+# Відновлення після stop
+docker compose start
+
+# Зупинити і видалити контейнери (volume з БД залишається)
 docker compose down
+
+# Видалити разом з даними БД
 docker compose down -v
+```
+
+### Перемикання на інший додаток (на тому ж порті)
+
+```bash
+# Зупинити поточний
+cd ~/fe_containerize
+docker compose down
+
+# Запустити інший додаток на тому ж порті
+cd ~/my-other-app
+docker compose up -d
+# В docker-compose нового додатку порт має бути:
+#   ports:
+#     - "${FRONTEND_PORT:-3080}:80"
+
+# Повернути назад
+cd ~/my-other-app && docker compose down
+cd ~/fe_containerize && docker compose up -d
 ```
 
 ## Environment Variables
