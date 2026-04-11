@@ -34,6 +34,7 @@ export class ItemsController {
   }
 
   @Get('items')
+  @UseGuards(AuthGuard)
   async findAll() {
     const items = await this.itemsService.findAll();
     return items.map((item) => ({

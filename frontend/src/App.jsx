@@ -653,7 +653,11 @@ function App() {
 
   const fetchItems = async () => {
     try {
-      const res = await fetch('/api/items')
+      const res = await fetch('/api/items', { headers: authHeaders() })
+      if (res.status === 401) {
+        handleLogout()
+        return
+      }
       if (res.ok) setItems(await res.json())
     } catch (e) {
       console.error('Failed to fetch items:', e)
