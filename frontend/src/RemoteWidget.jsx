@@ -5,11 +5,13 @@ export default function RemoteWidget({ src }) {
   const [error, setError] = useState(null)
 
   useEffect(() => {
+    let mounted = true
     const script = document.createElement('script')
     script.src = src
     script.async = true
 
     script.onload = () => {
+      if (!mounted) return
       if (window.MicroFrontendWidget && containerRef.current) {
         window.MicroFrontendWidget.mount(containerRef.current)
       } else {
@@ -17,11 +19,14 @@ export default function RemoteWidget({ src }) {
       }
     }
 
-    script.onerror = () => setError('Failed to load remote widget')
+    script.onerror = () => {
+      if (mounted) setError('Failed to load remote widget')
+    }
 
     document.head.appendChild(script)
 
     return () => {
+      mounted = false
       if (window.MicroFrontendWidget?.unmount && containerRef.current) {
         window.MicroFrontendWidget.unmount(containerRef.current)
       }

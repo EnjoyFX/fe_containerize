@@ -54,7 +54,7 @@ const PLACEHOLDER_DOCKER_TABS = {
       DB_USER: \${POSTGRES_USER:-appuser}
       DB_PASSWORD: \${POSTGRES_PASSWORD:-apppass}
       DB_NAME: \${POSTGRES_DB:-appdb}
-      ALLOWED_ORIGINS: \${ALLOWED_ORIGINS:-https://demo.triggers.online}
+      ALLOWED_ORIGINS: \${ALLOWED_ORIGINS:-http://localhost:3000}
     depends_on:
       db:
         condition: service_healthy
@@ -224,7 +224,7 @@ db:
 backend:
   replicas: 1
   port: 8000
-  allowedOrigins: "https://demo.triggers.online"
+  allowedOrigins: "http://192.168.0.60"
   podAnnotations: {}
 
 frontend:
@@ -239,7 +239,7 @@ microfrontend:
 
 ingress:
   enabled: true
-  host: demo.triggers.online`,
+  host: ""`,
   },
   helpers: {
     label: '_helpers.tpl',
@@ -661,7 +661,10 @@ function App() {
         handleLogout()
         return
       }
-      if (res.ok) setItems(await res.json())
+      if (res.ok) {
+        const data = await res.json()
+        if (Array.isArray(data)) setItems(data)
+      }
     } catch (e) {
       console.error('Failed to fetch items:', e)
     }

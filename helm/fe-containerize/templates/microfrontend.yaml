@@ -32,6 +32,13 @@ spec:
               port: {{ .Values.microfrontend.port }}
             initialDelaySeconds: 3
             periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /widget.iife.js
+              port: {{ .Values.microfrontend.port }}
+            initialDelaySeconds: 10
+            periodSeconds: 20
+            failureThreshold: 3
           resources:
             requests:
               memory: 32Mi

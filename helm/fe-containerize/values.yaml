@@ -17,7 +17,7 @@ db:
 backend:
   replicas: 1
   port: 8000
-  allowedOrigins: "https://demo.triggers.online"
+  allowedOrigins: "http://192.168.0.60"
   authUser: admin
   authPassword: ""
   jwtSecret: ""
@@ -35,5 +35,5 @@ microfrontend:
 
 ingress:
   enabled: true
-  host: demo.triggers.online
+  host: ""  # empty = match any host (LAN access by IP); set a domain to restrict
   # className: traefik  # k3s default

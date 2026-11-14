@@ -80,9 +80,9 @@ docker save fe_containerize-microfrontend:latest | sudo k3s ctr images import -
 # Деплой з кастомними значеннями
 helm upgrade --install fe-containerize ./helm/fe-containerize \
   --set db.password="my_strong_password" \
-  --set backend.allowedOrigins="https://demo.triggers.online" \
-  --set ingress.host="demo.triggers.online" \
   --wait
+# За замовчуванням доступ лише з LAN за IP: http://192.168.0.60/
+# Щоб прив'язати до домену: --set ingress.host=<domain> --set backend.allowedOrigins=https://<domain>
 
 # Перевірка
 kubectl get pods -n fe-containerize
@@ -105,11 +105,11 @@ kubectl get ingress -n fe-containerize
 | `db.password` | `CHANGE_ME...` | Пароль БД |
 | `db.storage` | `1Gi` | Розмір PVC для даних |
 | `backend.replicas` | `1` | Кількість реплік backend |
-| `backend.allowedOrigins` | `https://demo.triggers.online` | CORS origins |
+| `backend.allowedOrigins` | `http://192.168.0.60` | CORS origins |
 | `frontend.replicas` | `1` | Кількість реплік frontend |
 | `microfrontend.replicas` | `1` | Кількість реплік MFE |
 | `ingress.enabled` | `true` | Увімкнути Ingress |
-| `ingress.host` | `demo.triggers.online` | Домен для Ingress |
+| `ingress.host` | `""` | Домен для Ingress (порожньо = будь-який host, доступ за IP з LAN) |
 
 ## Архітектура в k3s
 
@@ -205,6 +205,82 @@ helm rollback fe-containerize 1
 helm uninstall fe-containerize
 kubectl delete namespace fe-containerize
 ```
+
+## Зупинка, перемикання, відновлення
+
+### Тимчасова зупинка (поди зупиняються, конфігурація і дані зберігаються)
+
+```bash
+kubectl scale deploy frontend backend microfrontend -n fe-containerize --replicas=0
+```
+
+### Відновлення
+
+```bash
+kubectl scale deploy frontend backend microfrontend -n fe-containerize --replicas=1
+```
+
+### Повне видалення
+
+```bash
+# Видалити деплой (PVC з базою залишиться)
+helm uninstall fe-containerize -n fe-containerize
+
+# Видалити разом з даними БД
+kubectl delete pvc db-data -n fe-containerize
+kubectl delete ns fe-containerize
+```
+
+### Запуск іншого додатку на тому ж Pi
+
+Ingress без `host` приймає всі запити на `http://192.168.0.60/` (тільки LAN — зовнішнього тунелю немає). Достатньо зупинити старий додаток і задеплоїти новий з таким самим Ingress без `host`.
+
+```bash
+# 1. Зупинити старий
+helm uninstall fe-containerize -n fe-containerize
+
+# 2. Задеплоїти новий додаток
+kubectl create ns my-new-app
+kubectl apply -n my-new-app -f my-app-manifests/
+
+# 3. Ingress нового додатку — без host (як і в цього чарту)
+cat <<'EOF' | kubectl apply -f -
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: my-new-app
+  namespace: my-new-app
+  annotations:
+    traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
+spec:
+  rules:
+    - http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: my-new-app
+                port:
+                  number: 80
+EOF
+```
+
+### Швидке перемикання між додатками
+
+Тримати обидва додатки в k3s, перемикати масштабуванням:
+
+```bash
+# Переключити на новий
+kubectl scale deploy frontend backend microfrontend -n fe-containerize --replicas=0
+kubectl scale deploy my-new-app -n my-new-app --replicas=1
+
+# Повернути старий
+kubectl scale deploy my-new-app -n my-new-app --replicas=0
+kubectl scale deploy frontend backend microfrontend -n fe-containerize --replicas=1
+```
+
+Traefik направляє трафік тільки на поди, які мають живі endpoints. Обидва namespace можуть мати Ingress з однаковим `host:` — роутинг йде туди, де є готові поди.
 
 ## Cloudflare Tunnel
 

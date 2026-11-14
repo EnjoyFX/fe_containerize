@@ -4,5 +4,8 @@ __pycache__/
 *.pyc
 .venv/
 .env
+.env.local
+.env.production
+.env.*.local
 frontend/public/project-files.json
 microfrontend/src/buildInfo.js
