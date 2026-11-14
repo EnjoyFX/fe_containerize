@@ -24,7 +24,7 @@ services:
       DB_USER: ${POSTGRES_USER:-appuser}
       DB_PASSWORD: ${POSTGRES_PASSWORD:-apppass}
       DB_NAME: ${POSTGRES_DB:-appdb}
-      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-https://demo.triggers.online}
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-http://localhost:3000}
       AUTH_USER: ${AUTH_USER:-admin}
       AUTH_PASSWORD: ${AUTH_PASSWORD:-}
       JWT_SECRET: ${JWT_SECRET:-}

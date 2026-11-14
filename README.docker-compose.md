@@ -143,7 +143,7 @@ cd ~/fe_containerize && docker compose up -d
 | `POSTGRES_USER` | `appuser` | Користувач БД |
 | `POSTGRES_PASSWORD` | `CHANGE_ME_USE_STRONG_PASSWORD` | Пароль БД |
 | `FRONTEND_PORT` | `3080` | Зовнішній порт frontend |
-| `ALLOWED_ORIGINS` | `https://demo.triggers.online` | CORS origins для backend |
+| `ALLOWED_ORIGINS` | `http://localhost:3000` | CORS origins для backend |
 
 ## Local Development
 
